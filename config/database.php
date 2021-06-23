@@ -1,9 +1,13 @@
 <?php
 
 
-
-
 use Illuminate\Support\Str;
+
+$url = parse_url(getenv("DATABASE_URL"));
+$host = $url["host"]??null;
+$username = $url["user"]??null;
+$password = $url["pass"]??null;
+$database = substr($url["path"], 1)??null;
 
 return [
 
@@ -18,7 +22,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'mysql_production'),
 
     /*
     |--------------------------------------------------------------------------
@@ -61,6 +65,20 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'mysql_production' => [
+            'driver' => 'mysql',
+            'host' => $host,
+            'database' =>$database,
+            'username' => $username,
+            'password' => $password,
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'prefix' => '',
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
